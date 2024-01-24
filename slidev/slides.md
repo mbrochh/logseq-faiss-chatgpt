@@ -88,8 +88,9 @@ clicks: 4
 
 # Part 1: Summarising Youtube Videos With Whisper & ChatGPT
 
-- Slides for the first talk [here](https://mbrochh.github.io/whisper-youtube-transcribe/1)
-- Video for the first talk [here](https://www.youtube.com/watch?v=t5eVAtavoQ8&t=76s)
+- Repo for the first talk: [here](https://github.com/mbrochh/whisper-youtube-transcribe)
+- Slides for the first talk: [here](https://mbrochh.github.io/whisper-youtube-transcribe/1)
+- Video for the first talk: [here](https://www.youtube.com/watch?v=t5eVAtavoQ8&t=76s)
 - Step 1: **Download** the **audio** of a Youtube video
 - Step 2: **Transcribe** the audio into a textfile with **Whisper**
 - Step 3: Turn the text into **chunks** of no more than ~14000 words
@@ -99,8 +100,9 @@ clicks: 4
 
 # Part 2: Summarising Kindle Books With PyTesseract & ChatGPT
 
-- Slides for the second talk [here](https://mbrochh.github.io/kindle-scrape-summarise/1)
-- Video for the second talk [here](https://www.youtube.com/watch?v=Shex-VKNLuM)
+- Repo for the second talk: [here](https://github.com/mbrochh/kindle-scrape-summarise)
+- Slides for the second talk: [here](https://mbrochh.github.io/kindle-scrape-summarise/1)
+- Video for the second talk: [here](https://www.youtube.com/watch?v=Shex-VKNLuM)
 - Step 1: Take **screenshot** the book while reading it 
 - Step 2: Use **pyTesseract** to turn the screenshots into text files
 - Step 3: Turn the text into **chunks** of no more than ~14000 words
