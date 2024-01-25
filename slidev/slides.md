@@ -89,35 +89,35 @@ clicks: 4
 # Part 1: Summarising Youtube Videos With Whisper & ChatGPT
 
 - Repo for the first talk: [here](https://github.com/mbrochh/whisper-youtube-transcribe)
-- Slides for the first talk: [here](https://mbrochh.github.io/whisper-youtube-transcribe/1)
-- Video for the first talk: [here](https://www.youtube.com/watch?v=t5eVAtavoQ8&t=76s)
 - Step 1: **Download** the **audio** of a Youtube video
 - Step 2: **Transcribe** the audio into a textfile with **Whisper**
 - Step 3: Turn the text into **chunks** of no more than ~14000 words
 - Step 4: Send each chunk to **OpenAI's API** and request a **summary**
+
+<img src="/images/part1-cover.jpg" class="max-h-[200px] mx-auto mt-4" />
 
 ---
 
 # Part 2: Summarising Kindle Books With PyTesseract & ChatGPT
 
 - Repo for the second talk: [here](https://github.com/mbrochh/kindle-scrape-summarise)
-- Slides for the second talk: [here](https://mbrochh.github.io/kindle-scrape-summarise/1)
-- Video for the second talk: [here](https://www.youtube.com/watch?v=Shex-VKNLuM)
 - Step 1: Take **screenshot** the book while reading it 
 - Step 2: Use **pyTesseract** to turn the screenshots into text files
 - Step 3: Turn the text into **chunks** of no more than ~14000 words
 - Step 4: Send each chunk to **OpenAI's API** and request a **summary**
-- Step 5: Format the summary for **Logseq** 
+
+<img src="/images/part2-cover.png" class="max-h-[200px] mx-auto mt-4" />
 
 ---
 
 # Today's Project: Chatting With Logseq Notes Using SQLite3, FAISS & ChatGPT
 
 - Step 1: **Find relevant notes** in Logseq
-- Step 2: **Convert** each note into a special **Python dictionary**
-- Step 3: **Get & store embeddings** for each sentence of each note
-- Step 4: **Ask a question** and find all relevant notes via FAISS
-- Step 5: **Send prompt** to ChatGPT to answer the question
+- Step 2: **Convert** each note into a vector
+- Step 3: **Ask a question** and find all relevant notes via FAISS
+- Step 4: **Send prompt** to ChatGPT to answer the question based on the found notes
+
+<img src="/images/cover.png" class="max-h-[200px] mx-auto mt-4" />
 
 ---
 
@@ -126,7 +126,7 @@ clicks: 4
 - [Logseq](https://logseq.com/) is a privacy first notes taking app
 - Similar to Roam Research or Obsidian
 - Fully open source
-- All files are just local Markdown files
+- All files are just local Markdown files on the local computer
 
 <img src="/images/logseq.png" class="max-h-[300px] mx-auto mt-4" />
 
@@ -151,9 +151,7 @@ clicks: 4
 - Learn more from [Facebook's FAISS Github repo](https://github.com/facebookresearch/faiss)
 - We will create a FAISS index that has all our embedding vectors
 - We will turn our question into a vector as well
-- We will then use FAISS to find the most similar vectors 
-
-- TODO: add image?
+- We will then use FAISS to find the most similar vectors
 
 ---
 
@@ -165,7 +163,20 @@ clicks: 4
 
 # Intro: The Process
 
-- TODO: add image
+- Let's see if DALL-E has learned to draw proper diagrams since our last talk...
+
+<img src="/images/dalle-prompt.png" class="max-h-[300px] mx-auto mt-4" />
+
+---
+
+
+<p class="text-center pt-[20%]">DRUMROLL....</p>
+
+---
+
+# WTF DALL-E?!
+
+<img src="/images/dalle.png" class="max-h-[400px] mx-auto mt-4" />
 
 ---
 
@@ -248,6 +259,11 @@ local_settings.py
 __pycache__/
 .DS_Store
 ```
+
+- The `local_settings.py` file will contain secret information
+- Therefore we don't want to commit it to Git or allow Github Copilot to see it
+- The `*.sqlite` file will contain all our notes and vectors
+- We also never want to expose that file to the outside world
 
 ---
 
@@ -412,18 +428,6 @@ import json
 from .local_settings import SQLITE_DB_PATH
 from .embeddings import get_embedding
 
-def check_if_exists(filename=None):
-    conn = sqlite3.connect(SQLITE_DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT id FROM embeddings WHERE filename = ?",
-        (filename, )
-    )
-    id = cursor.fetchone()
-    if id:
-        return True
-    return False
-
 def get_rows_by_id(row_ids):
     conn = sqlite3.connect(SQLITE_DB_PATH)
     cursor = conn.cursor()
@@ -490,9 +494,6 @@ if __name__ == '__main__':
         content='This is a test.',
         embedding=embedding,
     )
-
-    exists = check_if_exists(filename='test.txt')
-    print(f'Embedding for file test.txt exists: {exists}')
 
     all_embeddings = get_all_embeddings()
     embeddings_count = len(all_embeddings)
@@ -607,11 +608,11 @@ from .local_settings import OPENAI_API_KEY
 
 openai.api_key = OPENAI_API_KEY
 
+# see https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo
 MODEL = "gpt-4-1106-preview"
 ENCODING = "cl100k_base"
+
 MODEL_MAX_TOKENS = 30000
-COST_PER_1K_INPUT_TOKENS_USD = 0.01
-COST_PER_1K_OUTPUT_TOKENS_USD = 0.03
 RESPONSE_TOKENS = 1000
 
 PROMPT = """
@@ -628,7 +629,7 @@ CONTEXT:
 """
 
 def count_tokens(text):
-    """Count tokens in a text string using tiktoken."""
+    # see https://github.com/openai/tiktoken
     enc = tiktoken.encoding_for_model(MODEL)
     tokens = enc.encode(text)
     token_count = len(tokens)
@@ -689,19 +690,33 @@ def ask_gpt(query=None, send_to_openai=False):
         if chunk.choices[0].delta.content is not None:
             print(chunk.choices[0].delta.content, end="")
 
-    print(completion['choices'][0]['message']['content'])
-    print(completion['usage'])
-    input_tokens = completion['usage']['prompt_tokens']
-    output_tokens = completion['usage']['completion_tokens']
-    cost = (input_tokens / 1000 * COST_PER_1K_INPUT_TOKENS_USD) + (output_tokens / 1000 * COST_PER_1K_OUTPUT_TOKENS_USD)
-    print(f'Cost: ${cost}')
-
 if __name__ == '__main__':
     query = sys.argv[1]
     ask_gpt(query=query)
 ```
 
 ---
+
+# BONUS: Mixtral
+
+- Run `pip install ollama`
+- Run `ollama run mixtral` - this will download the model
+- Replace lines 86 - 96 in `ask_gpt.py` with the following code:
+- Try it out: `python -m second_brain.ask_gpt "What is the meaning of life?"`
+
+```python {1-101}{maxHeight:'340px'}
+    import ollama
+    stream = ollama.chat(
+        model='mixtral',
+        messages=[{'role': 'user', 'content': prompt}],
+        stream=True,
+    )
+
+    for chunk in stream:
+        print(chunk['message']['content'], end='', flush=True)
+```
+
+--- 
 
 # Thank you for your attention!
 
