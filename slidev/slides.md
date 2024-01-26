@@ -316,6 +316,7 @@ openai==0.27.9
 faiss-cpu==1.7.4
 tiktoken==0.5.1
 numpy==1.26.3
+ollama==0.1.4
 ```
 
 ---
@@ -708,8 +709,11 @@ def ask_gpt(query=None, send_to_openai=False):
     )
 
     for chunk in stream:
-        if chunk.choices[0].delta.content is not None:
-            print(chunk.choices[0].delta.content, end="")
+        try:
+            if chunk.choices[0].delta.content is not None:
+                print(chunk.choices[0].delta.content, end="")
+        except:
+            pass
 
 if __name__ == '__main__':
     query = sys.argv[1]
@@ -732,7 +736,7 @@ if __name__ == '__main__':
         messages=[{'role': 'user', 'content': prompt}],
         stream=True,
     )
-
+c
     for chunk in stream:
         print(chunk['message']['content'], end='', flush=True)
 ```
