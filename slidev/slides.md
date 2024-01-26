@@ -145,10 +145,22 @@ clicks: 4
 
 ---
 
+# Intro: Why do we need vectors?
+
+- We need vectors to be able to compare words and sentences to each other
+- Similar words or sentences will be grouped nearby each other in the vector space
+- We can calculate the distance between two vectors
+- Any sentence vector that is nearby our question vector seems to be a good candidate for an answer
+
+<img src="/images/vectors.png" class="max-h-[300px]" />
+
+---
+
 # Intro: What is FAISS?
 
 - FAISS is a library for efficient similarity search and clustering of dense vectors
 - Learn more from [Facebook's FAISS Github repo](https://github.com/facebookresearch/faiss)
+- It is able to ingest [billions of vectors](https://engineering.fb.com/2017/03/29/data-infrastructure/faiss-a-library-for-efficient-similarity-search/) and find the most similar vectors in milliseconds
 - We will create a FAISS index that has all our embedding vectors
 - We will turn our question into a vector as well
 - We will then use FAISS to find the most similar vectors
