@@ -180,6 +180,15 @@ clicks: 4
 
 ---
 
+# Intro: Retrieval Augmented Generation (RAG)
+
+- What we are doing here is actually called RAG
+- For now, it seems to be the best way to give LLMs some sort of up-to-date long-term memory
+- There are hundreds of tutorials out there to accomplish this
+- Here is one [with a nice diagram](https://towardsdatascience.com/retrieval-augmented-generation-rag-from-theory-to-langchain-implementation-4e9bd5f6a4f2)
+
+---
+
 # Let's Get Started!
 
 - :-)
