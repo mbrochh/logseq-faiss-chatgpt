@@ -1,0 +1,5 @@
+openai==0.27.9
+faiss-cpu==1.7.4
+tiktoken==0.5.1
+numpy==1.26.3
+ollama==0.1.4

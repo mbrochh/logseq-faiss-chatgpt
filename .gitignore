@@ -1,0 +1,4 @@
+local_settings.py
+*.sqlite
+__pycache__/
+.DS_Store
