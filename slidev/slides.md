@@ -667,8 +667,8 @@ def ask_gpt(query=None, send_to_openai=False):
 
     # get up to 100 nearest neighbors
     _, I = faiss_index.search(query_vector, 100)
-    # only consider neighbours that are less than 0.4 cosine distance
-    similar_items = [id_map[idx] for idx, sim in zip(I[0], _[0]) if idx >= 0 and sim < 0.4]
+    # only consider neighbours that are less than 1.5 cosine distance
+    similar_items = [id_map[idx] for idx, sim in zip(I[0], _[0]) if idx >= 0 and sim < 1.5]
 
     rows = get_rows_by_id(similar_items)
 
