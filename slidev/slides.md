@@ -294,7 +294,7 @@ __pycache__/
 
 ```python
 OPENAI_API_KEY = "YOUR OPENAI API KEY HERE"
-SQLITE_DB_PATH = '/Users/YOUR USERNAME HERE/Projects/second-brain/embeddings_db.sqlite'
+SQLITE_DB_PATH = '/Users/YOUR USERNAME HERE/Projects/second_brain/embeddings_db.sqlite'
 LOGSEQ_FOLDER = '/Users/YOUR USERNAME HERE/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/pages'
 ```
 
@@ -312,11 +312,11 @@ LOGSEQ_FOLDER = '/Users/YOUR USERNAME HERE/Library/Mobile Documents/iCloud~com~l
 - Put the following code into the `requirements.txt` file:
 
 ```bash
-openai==0.27.9
+openai==1.12.0 
 faiss-cpu==1.7.4
-tiktoken==0.5.1
-numpy==1.26.3
-ollama==0.1.4
+tiktoken==0.6.0
+numpy==1.26.4
+ollama==0.1.6
 ```
 
 ---
@@ -413,22 +413,16 @@ if __name__ == '__main__':
 - We use [OpenAI's Embeddings API](https://platform.openai.com/docs/guides/embeddings) to turn a sentence into a vector
 - Try it out: `python -m second_brain.embeddings`
 
-```python {1-29}{maxHeight:'350px'}
-import openai 
+```python {1-14}{maxHeight:'350px'}
+from openai import OpenAI
 
 from .local_settings import OPENAI_API_KEY
 
-openai.api_key = OPENAI_API_KEY
+client = OpenAI(api_key=OPENAI_API_KEY) 
 
-def get_embedding(
-      content=None, 
-      model="text-embedding-ada-002"
-):
-   embedding = openai.Embedding.create(
-      input=[content], 
-      model=model,
-   )
-   return embedding['data'][0]['embedding']
+def get_embedding(content=None, model="text-embedding-ada-002"):
+   embedding = client.embeddings.create( input=[content], model=model)
+   return embedding.data[0].embedding
 
 if __name__ == '__main__':
    content = 'This is a test.'
@@ -617,7 +611,7 @@ if __name__ == '__main__':
 ```python {1-101}{maxHeight:'340px'}
 import sys
 import numpy as np
-import openai
+from openai import OpenAI
 import tiktoken
 
 
@@ -628,7 +622,7 @@ from .faiss_utils import build_faiss_index
 from .local_settings import OPENAI_API_KEY
 
 
-openai.api_key = OPENAI_API_KEY
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 # see https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo
 MODEL = "gpt-4-1106-preview"
@@ -700,19 +694,17 @@ def ask_gpt(query=None, send_to_openai=False):
     print('FULL PROMPT:')
     print(prompt)
 
-    stream = openai.ChatCompletion.create(
+    stream = client.chat.completions.create(
+        messages=[ { "role": "user", "content": prompt, } ],
         model=MODEL,
         stream=True,
-        messages=[
-            {"role": "user", "content": prompt},
-        ]
     )
 
     for chunk in stream:
         try:
             if chunk.choices[0].delta.content is not None:
                 print(chunk.choices[0].delta.content, end="")
-        except:
+        except Exception:
             pass
 
 if __name__ == '__main__':
